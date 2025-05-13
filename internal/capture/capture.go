@@ -13,16 +13,16 @@ import (
 
 // CaptureEngine handles network frame capture
 type CaptureEngine struct {
-	handle         *pcap.Handle
-	interfaceName  string
-	promiscuous    bool
-	filter         string
-	isRunning      bool
-	frameChannel   chan *models.Frame
-	stopChannel    chan struct{}
-	frameCounter   int64
-	mutex          sync.Mutex
-	frameParser    *parser.FrameParser
+	handle        *pcap.Handle
+	interfaceName string
+	promiscuous   bool
+	filter        string
+	isRunning     bool
+	frameChannel  chan *models.Frame
+	stopChannel   chan struct{}
+	frameCounter  int64
+	mutex         sync.Mutex
+	frameParser   *parser.FrameParser
 }
 
 // NewCaptureEngine creates a new capture engine
@@ -65,6 +65,10 @@ func (ce *CaptureEngine) Start() error {
 	if ce.isRunning {
 		return fmt.Errorf("capture already running")
 	}
+
+	// Reinitialize channels for new capture session
+	ce.frameChannel = make(chan *models.Frame, 1000) // Buffer for 1000 frames
+	ce.stopChannel = make(chan struct{})
 
 	// Open the device for capturing
 	// snaplen: 65535 - maximum capture size
@@ -163,4 +167,4 @@ func (ce *CaptureEngine) captureFrames() {
 			ce.frameChannel <- frame
 		}
 	}
-} 
+}
