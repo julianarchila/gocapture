@@ -29,10 +29,30 @@ type SaveMetadata struct {
 func NewStorageManager(outputDir string) (*StorageManager, error) {
 	// Create output directory if it doesn't exist
 	if outputDir == "" {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return nil, fmt.Errorf("could not determine user home directory: %v", err)
+		var homeDir string
+		var err error
+
+		// Check if we're running as root (via sudo)
+		if os.Geteuid() == 0 {
+			// Try to get the original user's home directory
+			if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
+				// Use the original user's home directory
+				homeDir = filepath.Join("/home", sudoUser)
+			} else {
+				// Fallback to current user's home directory
+				homeDir, err = os.UserHomeDir()
+				if err != nil {
+					return nil, fmt.Errorf("could not determine user home directory: %v", err)
+				}
+			}
+		} else {
+			// Not running as root, use current user's home directory
+			homeDir, err = os.UserHomeDir()
+			if err != nil {
+				return nil, fmt.Errorf("could not determine user home directory: %v", err)
+			}
 		}
+
 		outputDir = filepath.Join(homeDir, ".gocapture", "captures")
 	}
 
@@ -94,8 +114,17 @@ func (sm *StorageManager) SaveFrames(frames []*models.Frame, metadata *SaveMetad
 		return fmt.Errorf("failed to encode metadata: %v", err)
 	}
 
+	// Create a serializable copy of the frames without OriginalPacket
+	serializableFrames := make([]*models.Frame, len(frames))
+	for i, frame := range frames {
+		// Create a copy of the frame without OriginalPacket
+		serializableFrame := *frame
+		serializableFrame.OriginalPacket = nil
+		serializableFrames[i] = &serializableFrame
+	}
+
 	// Then write the frames
-	if err := encoder.Encode(frames); err != nil {
+	if err := encoder.Encode(serializableFrames); err != nil {
 		return fmt.Errorf("failed to encode frames: %v", err)
 	}
 
@@ -196,4 +225,4 @@ func (sm *StorageManager) DeleteCapture(filename string) error {
 	}
 
 	return nil
-} 
+}

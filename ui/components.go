@@ -553,13 +553,27 @@ func (m *savedCapturesModel) loadSavedCaptures() tea.Cmd {
 		m.captures = captures
 		m.loading = false
 
-		return nil
+		// Return a command to update the UI
+		return tea.Batch(
+			func() tea.Msg {
+				return capturesLoadedMsg{captures: captures}
+			},
+		)()
 	}
+}
+
+// capturesLoadedMsg is a message sent when captures are loaded
+type capturesLoadedMsg struct {
+	captures []*storage.SaveMetadata
 }
 
 // Update handles updates to the saved captures model
 func (m *savedCapturesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case capturesLoadedMsg:
+		m.captures = msg.captures
+		m.loading = false
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up", "k":
