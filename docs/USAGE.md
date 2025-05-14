@@ -79,11 +79,6 @@ GoCapture sigue una arquitectura modular con clara separación de responsabilida
    - Implementa parsers específicos para tramas Ethernet y WLAN
    - Extrae campos de encabezado, direcciones e información específica del protocolo
 
-3. **Motor Analizador** (`internal/analyzer`)
-   - Interpreta datos de tramas parseadas
-   - Proporciona análisis de seguridad para métodos de encriptación
-   - Analiza parámetros QoS y priorización de tráfico
-   - Da contexto y recomendaciones basadas en las tramas observadas
 
 4. **Módulo de Almacenamiento** (`internal/storage`)
    - Serializa tramas capturadas a disco
@@ -167,7 +162,6 @@ Para tramas con información de Calidad de Servicio, GoCapture analiza:
 - **Asignación TXOP**: Duraciones de oportunidad de transmisión
 - **Políticas ACK**: Cómo se confirman las tramas
 
-## Solución de Problemas
 
 ### Problemas de Permisos
 
@@ -218,9 +212,6 @@ Las expresiones Berkeley Packet Filter (BPF) permiten un filtrado preciso de cap
 - `icmp`: Capturar solo paquetes ICMP
 - `not port 22`: Excluir tráfico SSH
 
-## Contribuir
-
-¡Las contribuciones a GoCapture son bienvenidas! Por favor, consulte nuestras guías de contribución para más información.
 
 ## Licencia
 

@@ -99,47 +99,6 @@ Al explorar capturas guardadas:
 | `Enter`   | Cargar captura seleccionada          |
 | `Esc`     | Volver al menú principal             |
 
-## Reglas y Comportamiento del Cursor
-
-El cursor en GoCapture sigue estas reglas consistentes:
-
-1. **Visibilidad**: El cursor siempre es visible como un carácter `>` al inicio del elemento seleccionado
-
-2. **Envoltura**: Los cursores no se envuelven de abajo hacia arriba o de arriba hacia abajo
-
-3. **Paginación**: Cuando una lista excede el área visible:
-   - La vista se desplaza automáticamente para mantener el cursor visible
-   - Las teclas PgUp/PgDn mueven el cursor una página completa
-   - Se indica la posición actual de la página (ej., "Mostrando 1-10 de 50 tramas")
-
-4. **Selección**: El elemento actualmente seleccionado siempre está resaltado con el cursor
-
-5. **Verificación de Límites**: 
-   - Presionar arriba cuando está en la parte superior de una lista no tiene efecto
-   - Presionar abajo cuando está en la parte inferior de una lista no tiene efecto
-   - La navegación siguiente/anterior de tramas se detiene al principio o final de la lista de tramas
-
-## Manejo Especial de Entrada
-
-### Expresiones de Filtro
-
-Al aplicar expresiones de filtro BPF a través de argumentos de línea de comandos:
-
-- Las expresiones deben estar correctamente entre comillas si contienen espacios
-- Las expresiones complejas pueden usar operadores booleanos (AND, OR, NOT)
-- Ejemplos:
-  ```
-  -filter "host 192.168.1.1 and port 80"
-  -filter "not port 22"
-  -filter "ether host 00:11:22:33:44:55"
-  ```
-
 ### Selección de Interfaz
 
 Los nombres de interfaz distinguen entre mayúsculas y minúsculas y deben coincidir exactamente con los listados al ejecutar GoCapture sin argumentos.
-
-## Consideraciones de Accesibilidad
-
-- Se proporciona navegación estilo Vim (`h`, `j`, `k`, `l`) como alternativa a las teclas de flecha
-- El indicador de cursor de alto contraste (`>`) hace que la selección sea claramente visible
-- La información de resumen está formateada consistentemente para lectores de pantalla 
