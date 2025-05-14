@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
-	"github.com/julian/gocapture/internal/parser"
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/internal/parser"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // CaptureEngine handles network frame capture

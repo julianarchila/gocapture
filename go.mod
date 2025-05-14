@@ -1,4 +1,4 @@
-module github.com/julian/gocapture
+module github.com/julianarchila/gocapture
 
 go 1.24.1
 

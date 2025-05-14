@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/google/gopacket/pcap"
-	"github.com/julian/gocapture/internal/capture"
-	"github.com/julian/gocapture/ui"
+	"github.com/julianarchila/gocapture/internal/capture"
+	"github.com/julianarchila/gocapture/ui"
 )
 
 func main() {
@@ -45,4 +45,4 @@ func main() {
 	if err := ui.StartUI(captureEngine); err != nil {
 		log.Fatalf("UI error: %v", err)
 	}
-} 
+}

@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/julian/gocapture/internal/storage"
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/internal/storage"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // mainMenuModel represents the main menu UI component

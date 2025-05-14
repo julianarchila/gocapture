@@ -3,7 +3,7 @@ package analyzer
 import (
 	"fmt"
 
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // SecurityAnalyzer analyzes security aspects of network frames
@@ -74,7 +74,7 @@ func (sa *SecurityAnalyzer) AnalyzeSecurity(frame *models.Frame) {
 				if !protected {
 					securityInfo["SecurityLevel"] = "None"
 					securityInfo["Warning"] = "Unencrypted wireless frame"
-					
+
 					// Add context based on frame type
 					if frame.FrameType == models.WLANManagementFrame {
 						securityInfo["Context"] = "Management frames are typically unencrypted in older standards, but newer standards support Protected Management Frames (PMF)."
@@ -93,9 +93,9 @@ func (sa *SecurityAnalyzer) AnalyzeSecurity(frame *models.Frame) {
 	}
 
 	frame.AnalysisResults["Security"] = securityInfo
-	
+
 	// Update the summary to include security info
 	if summary, ok := frame.AnalysisResults["Summary"].(string); ok {
 		frame.AnalysisResults["Summary"] = fmt.Sprintf("%s [%s]", summary, frame.Security.EncryptionType)
 	}
-} 
+}

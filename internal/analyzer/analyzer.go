@@ -3,7 +3,7 @@ package analyzer
 import (
 	"fmt"
 
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // FrameAnalyzer analyzes network frames and provides insights
@@ -54,15 +54,15 @@ func (fa *FrameAnalyzer) AnalyzeFrame(frame *models.Frame) {
 func (fa *FrameAnalyzer) analyzeEthernetFrame(frame *models.Frame) {
 	// Add Ethernet-specific analysis
 	etherTypeDescription := getEtherTypeDescription(frame.EtherType)
-	
+
 	frame.AnalysisResults["Summary"] = fmt.Sprintf("Ethernet frame: %s", etherTypeDescription)
 	frame.AnalysisResults["Details"] = map[string]interface{}{
-		"EtherType":       frame.EtherType,
-		"EtherTypeDesc":   etherTypeDescription,
-		"SourceMAC":       frame.SourceMAC,
-		"DestinationMAC":  frame.DestinationMAC,
+		"EtherType":      frame.EtherType,
+		"EtherTypeDesc":  etherTypeDescription,
+		"SourceMAC":      frame.SourceMAC,
+		"DestinationMAC": frame.DestinationMAC,
 	}
-	
+
 	// Add VLAN info if present
 	if frame.VLANInfo != nil {
 		frame.AnalysisResults["VLANInfo"] = frame.VLANInfo
@@ -76,9 +76,9 @@ func (fa *FrameAnalyzer) analyzeWLANManagementFrame(frame *models.Frame) {
 	if !ok {
 		return
 	}
-	
+
 	subtype, _ := frameControl["Subtype"].(uint16)
-	
+
 	// Get management frame type
 	var frameTypeStr string
 	if managementInfo, ok := frame.AnalysisResults["ManagementInfo"].(map[string]interface{}); ok {
@@ -86,10 +86,10 @@ func (fa *FrameAnalyzer) analyzeWLANManagementFrame(frame *models.Frame) {
 			frameTypeStr = typeStr
 		}
 	}
-	
+
 	// Add analysis based on frame subtype
 	frame.AnalysisResults["Summary"] = fmt.Sprintf("WLAN Management Frame: %s", frameTypeStr)
-	
+
 	// Add more detailed analysis based on the specific management frame type
 	switch subtype {
 	case 0: // Association Request
@@ -118,9 +118,9 @@ func (fa *FrameAnalyzer) analyzeWLANControlFrame(frame *models.Frame) {
 	if !ok {
 		return
 	}
-	
+
 	subtype, _ := frameControl["Subtype"].(uint16)
-	
+
 	// Add control frame specific analysis
 	var subtypeStr string
 	switch subtype {
@@ -151,7 +151,7 @@ func (fa *FrameAnalyzer) analyzeWLANControlFrame(frame *models.Frame) {
 	default:
 		subtypeStr = fmt.Sprintf("Unknown control frame (%d)", subtype)
 	}
-	
+
 	frame.AnalysisResults["Summary"] = fmt.Sprintf("WLAN Control Frame: %s", subtypeStr)
 }
 
@@ -162,11 +162,11 @@ func (fa *FrameAnalyzer) analyzeWLANDataFrame(frame *models.Frame) {
 	if !ok {
 		return
 	}
-	
+
 	subtype, _ := frameControl["Subtype"].(uint16)
 	toDS, _ := frameControl["ToDS"].(bool)
 	fromDS, _ := frameControl["FromDS"].(bool)
-	
+
 	// Determine direction
 	var direction string
 	if toDS && !fromDS {
@@ -178,7 +178,7 @@ func (fa *FrameAnalyzer) analyzeWLANDataFrame(frame *models.Frame) {
 	} else {
 		direction = "Station to Station (Ad-Hoc)"
 	}
-	
+
 	// Add data frame specific analysis
 	var subtypeStr string
 	switch subtype {
@@ -196,7 +196,7 @@ func (fa *FrameAnalyzer) analyzeWLANDataFrame(frame *models.Frame) {
 	default:
 		subtypeStr = fmt.Sprintf("Unknown data frame (%d)", subtype)
 	}
-	
+
 	frame.AnalysisResults["Summary"] = fmt.Sprintf("WLAN Data Frame: %s, Direction: %s", subtypeStr, direction)
 	frame.AnalysisResults["Direction"] = direction
 }
@@ -227,4 +227,4 @@ func getEtherTypeDescription(etherType uint16) string {
 	default:
 		return fmt.Sprintf("Unknown (0x%04X)", etherType)
 	}
-} 
+}

@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/google/gopacket/layers"
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // FrameParser handles parsing of different types of network frames

@@ -18,7 +18,7 @@ GoCapture es una herramienta completa de captura y análisis de tramas de red pa
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/USERNAME/gocapture.git
+   git clone https://github.com/julianarchila/gocapture.git
    cd gocapture
    ```
 

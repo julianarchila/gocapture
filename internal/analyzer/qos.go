@@ -3,7 +3,7 @@ package analyzer
 import (
 	"fmt"
 
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // QoSAnalyzer analyzes Quality of Service aspects of network frames
@@ -26,15 +26,15 @@ func (qa *QoSAnalyzer) AnalyzeQoS(frame *models.Frame) {
 	}
 
 	qosInfo := make(map[string]interface{})
-	
+
 	// Add basic QoS info
 	qosInfo["Priority"] = frame.QoS.Priority
 	qosInfo["TID"] = frame.QoS.TID
 	qosInfo["ACKPolicy"] = frame.QoS.ACKPolicy
-	
+
 	// Add TID description
 	qosInfo["TrafficType"] = getTrafficTypeByTID(frame.QoS.TID)
-	
+
 	// Add detailed explanations
 	switch frame.QoS.ACKPolicy {
 	case "Normal ACK":
@@ -46,13 +46,13 @@ func (qa *QoSAnalyzer) AnalyzeQoS(frame *models.Frame) {
 	case "Block ACK":
 		qosInfo["ACKContext"] = "Multiple frames are acknowledged with a single Block ACK, improving efficiency."
 	}
-	
+
 	// Add performance analysis based on priority
 	qosInfo["Explanation"] = getQoSPriorityExplanation(frame.QoS.Priority)
-	
+
 	// Add recommended applications for this priority level
 	qosInfo["RecommendedApplications"] = getRecommendedApplications(frame.QoS.Priority)
-	
+
 	// Add any details provided by the parser
 	for k, v := range frame.QoS.Details {
 		qosInfo[k] = v
@@ -66,11 +66,11 @@ func (qa *QoSAnalyzer) AnalyzeQoS(frame *models.Frame) {
 	}
 
 	frame.AnalysisResults["QoS"] = qosInfo
-	
+
 	// Update the summary to include QoS info
 	if summary, ok := frame.AnalysisResults["Summary"].(string); ok {
 		trafficType := getTrafficTypeByTID(frame.QoS.TID)
-		frame.AnalysisResults["Summary"] = fmt.Sprintf("%s [QoS: %s, Priority: %d]", 
+		frame.AnalysisResults["Summary"] = fmt.Sprintf("%s [QoS: %s, Priority: %d]",
 			summary, trafficType, frame.QoS.Priority)
 	}
 }
@@ -133,4 +133,4 @@ func getRecommendedApplications(priority int) []string {
 	default:
 		return []string{"Unknown"}
 	}
-} 
+}

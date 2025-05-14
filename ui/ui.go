@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/julian/gocapture/internal/analyzer"
-	"github.com/julian/gocapture/internal/capture"
-	"github.com/julian/gocapture/internal/storage"
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/internal/analyzer"
+	"github.com/julianarchila/gocapture/internal/capture"
+	"github.com/julianarchila/gocapture/internal/storage"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // UI states

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/julian/gocapture/pkg/models"
+	"github.com/julianarchila/gocapture/pkg/models"
 )
 
 // StorageManager handles saving and loading of captured frames
