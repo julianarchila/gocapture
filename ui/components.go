@@ -19,9 +19,9 @@ type mainMenuModel struct {
 func newMainMenuModel() *mainMenuModel {
 	return &mainMenuModel{
 		options: []string{
-			"Start Capture",
-			"Load Capture",
-			"Quit",
+			"Iniciar Captura",
+			"Cargar Captura",
+			"Salir",
 		},
 		cursor: 0,
 	}
@@ -60,7 +60,7 @@ func (m *mainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *mainMenuModel) View() string {
 	var sb strings.Builder
 
-	sb.WriteString("🔍 Main Menu\n\n")
+	sb.WriteString("🔍 Menú Principal\n\n")
 
 	for i, option := range m.options {
 		cursor := " "
@@ -71,7 +71,7 @@ func (m *mainMenuModel) View() string {
 		sb.WriteString(fmt.Sprintf("%s %s\n", cursor, option))
 	}
 
-	sb.WriteString("\nUse arrow keys to navigate, Enter to select\n")
+	sb.WriteString("\nUse las teclas de flecha para navegar, Enter para seleccionar\n")
 
 	return sb.String()
 }
@@ -149,10 +149,10 @@ func (m *frameListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *frameListModel) View() string {
 	var sb strings.Builder
 
-	sb.WriteString("📋 Frame List\n\n")
+	sb.WriteString("📋 Lista de Tramas\n\n")
 
 	// Show total frame count
-	sb.WriteString(fmt.Sprintf("Total frames: %d\n\n", len(m.frames)))
+	sb.WriteString(fmt.Sprintf("Total de tramas: %d\n\n", len(m.frames)))
 
 	// Calculate end index for pagination
 	end := m.offset + m.pageSize
@@ -176,15 +176,15 @@ func (m *frameListModel) View() string {
 		} else {
 			switch frame.FrameType {
 			case models.EthernetFrame:
-				summary = "Ethernet Frame"
+				summary = "Trama Ethernet"
 			case models.WLANManagementFrame:
-				summary = "WLAN Management Frame"
+				summary = "Trama de Gestión WLAN"
 			case models.WLANControlFrame:
-				summary = "WLAN Control Frame"
+				summary = "Trama de Control WLAN"
 			case models.WLANDataFrame:
-				summary = "WLAN Data Frame"
+				summary = "Trama de Datos WLAN"
 			default:
-				summary = "Unknown Frame Type"
+				summary = "Tipo de Trama Desconocido"
 			}
 		}
 
@@ -202,10 +202,10 @@ func (m *frameListModel) View() string {
 
 	// Show pagination info
 	if len(m.frames) > m.pageSize {
-		sb.WriteString(fmt.Sprintf("\nShowing %d-%d of %d frames\n", m.offset+1, end, len(m.frames)))
+		sb.WriteString(fmt.Sprintf("\nMostrando %d-%d de %d tramas\n", m.offset+1, end, len(m.frames)))
 	}
 
-	sb.WriteString("\nUse arrow keys to navigate, Enter to view frame details\n")
+	sb.WriteString("\nUse las teclas de flecha para navegar, Enter para ver detalles de la trama\n")
 
 	return sb.String()
 }
@@ -266,7 +266,7 @@ func (m *frameDetailModel) View() string {
 		return "No frame selected"
 	}
 
-	sb.WriteString("🔍 Frame Details\n\n")
+	sb.WriteString("🔍 Detalles de Trama\n\n")
 
 	// Show frame ID and basic info
 	sb.WriteString(fmt.Sprintf("Frame #%d - Captured at %s\n",
@@ -310,7 +310,7 @@ func (m *frameDetailModel) View() string {
 		m.renderHexView(&sb)
 	}
 
-	sb.WriteString("\nUse arrow keys to scroll, Tab to change view, ESC to go back to list\n")
+	sb.WriteString("\nUse Tab para cambiar modos de vista, flechas para desplazar\n")
 	sb.WriteString("Press n/right for next frame, p/left for previous frame\n")
 
 	return sb.String()
@@ -318,193 +318,120 @@ func (m *frameDetailModel) View() string {
 
 // renderSummaryView renders the summary view of the frame
 func (m *frameDetailModel) renderSummaryView(sb *strings.Builder) {
-	// Frame type
-	var frameTypeStr string
-	switch m.frame.FrameType {
+	frame := m.frame
+
+	sb.WriteString(fmt.Sprintf("ID: %d\n", frame.ID))
+	sb.WriteString(fmt.Sprintf("Tiempo: %s\n", frame.Timestamp.Format("2006-01-02 15:04:05.000")))
+	sb.WriteString(fmt.Sprintf("Longitud: %d bytes\n\n", frame.Length))
+
+	sb.WriteString("Direcciones:\n")
+	sb.WriteString(fmt.Sprintf("  Origen: %s\n", frame.SourceMAC))
+	sb.WriteString(fmt.Sprintf("  Destino: %s\n\n", frame.DestinationMAC))
+
+	sb.WriteString("Tipo de Trama: ")
+	switch frame.FrameType {
 	case models.EthernetFrame:
-		frameTypeStr = "Ethernet Frame (IEEE 802.3)"
+		sb.WriteString("Ethernet\n")
 	case models.WLANManagementFrame:
-		frameTypeStr = "WLAN Management Frame (IEEE 802.11)"
+		sb.WriteString("Gestión WLAN\n")
 	case models.WLANControlFrame:
-		frameTypeStr = "WLAN Control Frame (IEEE 802.11)"
+		sb.WriteString("Control WLAN\n")
 	case models.WLANDataFrame:
-		frameTypeStr = "WLAN Data Frame (IEEE 802.11)"
+		sb.WriteString("Datos WLAN\n")
 	default:
-		frameTypeStr = "Unknown Frame Type"
+		sb.WriteString("Desconocido\n")
 	}
 
-	sb.WriteString(fmt.Sprintf("Frame Type: %s\n", frameTypeStr))
-	sb.WriteString(fmt.Sprintf("Source MAC: %s\n", m.frame.SourceMAC))
-	sb.WriteString(fmt.Sprintf("Destination MAC: %s\n", m.frame.DestinationMAC))
-
-	// Show summary from analysis results
-	if summary, ok := m.frame.AnalysisResults["Summary"]; ok {
-		sb.WriteString(fmt.Sprintf("\nSummary: %v\n", summary))
-	}
-
-	// Show context from analysis results
-	if context, ok := m.frame.AnalysisResults["Context"]; ok {
-		sb.WriteString(fmt.Sprintf("\nContext: %v\n", context))
-	}
-
-	// Show security info if available
-	if security, ok := m.frame.AnalysisResults["Security"].(map[string]interface{}); ok {
-		sb.WriteString("\n--- Security Information ---\n")
-
-		if encType, ok := security["EncryptionType"].(string); ok {
-			sb.WriteString(fmt.Sprintf("Encryption: %s\n", encType))
-		}
-
-		if level, ok := security["SecurityLevel"].(string); ok {
-			sb.WriteString(fmt.Sprintf("Security Level: %s\n", level))
-		}
-
-		if context, ok := security["Context"].(string); ok {
-			sb.WriteString(fmt.Sprintf("Security Context: %s\n", context))
-		}
-
-		if warning, ok := security["Warning"].(string); ok {
-			sb.WriteString(fmt.Sprintf("Warning: %s\n", warning))
-		}
-	}
-
-	// Show QoS info if available
-	if qos, ok := m.frame.AnalysisResults["QoS"].(map[string]interface{}); ok {
-		sb.WriteString("\n--- QoS Information ---\n")
-
-		if priority, ok := qos["Priority"].(int); ok {
-			sb.WriteString(fmt.Sprintf("Priority: %d\n", priority))
-		}
-
-		if trafficType, ok := qos["TrafficType"].(string); ok {
-			sb.WriteString(fmt.Sprintf("Traffic Type: %s\n", trafficType))
-		}
-
-		if explanation, ok := qos["Explanation"].(string); ok {
-			sb.WriteString(fmt.Sprintf("Explanation: %s\n", explanation))
+	// Show analysis results
+	if len(frame.AnalysisResults) > 0 {
+		sb.WriteString("\nAnálisis:\n")
+		for key, value := range frame.AnalysisResults {
+			sb.WriteString(fmt.Sprintf("  %s: %v\n", key, value))
 		}
 	}
 }
 
 // renderDetailsView renders the detailed view of the frame
 func (m *frameDetailModel) renderDetailsView(sb *strings.Builder) {
-	// Show frame control info for WLAN frames
-	if m.frame.FrameType == models.WLANManagementFrame ||
-		m.frame.FrameType == models.WLANControlFrame ||
-		m.frame.FrameType == models.WLANDataFrame {
+	frame := m.frame
 
-		sb.WriteString("--- Frame Control Field ---\n")
+	sb.WriteString("Información Detallada de la Trama\n\n")
 
-		if fc, ok := m.frame.FrameControl.(map[string]interface{}); ok {
-			for k, v := range fc {
-				sb.WriteString(fmt.Sprintf("%s: %v\n", k, v))
-			}
+	// Basic information
+	sb.WriteString("Información Básica:\n")
+	sb.WriteString(fmt.Sprintf("  ID: %d\n", frame.ID))
+	sb.WriteString(fmt.Sprintf("  Tiempo: %s\n", frame.Timestamp.Format("2006-01-02 15:04:05.000")))
+	sb.WriteString(fmt.Sprintf("  Longitud: %d bytes\n", frame.Length))
+
+	// MAC addresses
+	sb.WriteString("\nDirecciones MAC:\n")
+	sb.WriteString(fmt.Sprintf("  Origen: %s\n", frame.SourceMAC))
+	sb.WriteString(fmt.Sprintf("  Destino: %s\n", frame.DestinationMAC))
+
+	// Frame type specific information
+	sb.WriteString("\nInformación Específica del Tipo:\n")
+	switch frame.FrameType {
+	case models.EthernetFrame:
+		sb.WriteString("  Tipo: Ethernet\n")
+		if frame.EtherType != 0 {
+			sb.WriteString(fmt.Sprintf("  EtherType: 0x%04x\n", frame.EtherType))
 		}
-
-		sb.WriteString(fmt.Sprintf("\nDuration: %d\n", m.frame.Duration))
-		sb.WriteString(fmt.Sprintf("Sequence Control: %d\n", m.frame.SequenceControl))
-
-		sb.WriteString("\n--- Address Fields ---\n")
-		sb.WriteString(fmt.Sprintf("Address 1: %s\n", m.frame.Address1))
-		sb.WriteString(fmt.Sprintf("Address 2: %s\n", m.frame.Address2))
-		sb.WriteString(fmt.Sprintf("Address 3: %s\n", m.frame.Address3))
-
-		if m.frame.Address4 != "" {
-			sb.WriteString(fmt.Sprintf("Address 4: %s\n", m.frame.Address4))
+	case models.WLANManagementFrame:
+		sb.WriteString("  Tipo: Gestión WLAN\n")
+		if frame.FrameControl != nil {
+			sb.WriteString(fmt.Sprintf("  Control de Trama: %v\n", frame.FrameControl))
 		}
-	}
-
-	// Show EtherType for Ethernet frames
-	if m.frame.FrameType == models.EthernetFrame {
-		sb.WriteString(fmt.Sprintf("EtherType: 0x%04X\n", m.frame.EtherType))
-
-		// Show VLAN info if present
-		if m.frame.VLANInfo != nil {
-			sb.WriteString("\n--- VLAN Information ---\n")
-			if vlanInfo, ok := m.frame.VLANInfo.(map[string]interface{}); ok {
-				for k, v := range vlanInfo {
-					sb.WriteString(fmt.Sprintf("%s: %v\n", k, v))
-				}
-			}
+	case models.WLANControlFrame:
+		sb.WriteString("  Tipo: Control WLAN\n")
+		if frame.FrameControl != nil {
+			sb.WriteString(fmt.Sprintf("  Control de Trama: %v\n", frame.FrameControl))
 		}
-	}
-
-	// Show security details if available
-	if m.frame.Security != nil {
-		sb.WriteString("\n--- Security Details ---\n")
-		sb.WriteString(fmt.Sprintf("Encryption Type: %s\n", m.frame.Security.EncryptionType))
-
-		if len(m.frame.Security.Details) > 0 {
-			for k, v := range m.frame.Security.Details {
-				sb.WriteString(fmt.Sprintf("%s: %v\n", k, v))
-			}
+	case models.WLANDataFrame:
+		sb.WriteString("  Tipo: Datos WLAN\n")
+		if frame.FrameControl != nil {
+			sb.WriteString(fmt.Sprintf("  Control de Trama: %v\n", frame.FrameControl))
 		}
 	}
 
-	// Show QoS details if available
-	if m.frame.QoS != nil {
-		sb.WriteString("\n--- QoS Details ---\n")
-		sb.WriteString(fmt.Sprintf("TID: %d\n", m.frame.QoS.TID))
-		sb.WriteString(fmt.Sprintf("Priority: %d\n", m.frame.QoS.Priority))
-		sb.WriteString(fmt.Sprintf("ACK Policy: %s\n", m.frame.QoS.ACKPolicy))
-		sb.WriteString(fmt.Sprintf("TXOP: %d\n", m.frame.QoS.TXOP))
-
-		if len(m.frame.QoS.Details) > 0 {
-			for k, v := range m.frame.QoS.Details {
-				sb.WriteString(fmt.Sprintf("%s: %v\n", k, v))
-			}
-		}
-	}
-
-	// Show all analysis results
-	sb.WriteString("\n--- All Analysis Results ---\n")
-	for k, v := range m.frame.AnalysisResults {
-		if k != "Summary" && k != "Context" && k != "Security" && k != "QoS" {
-			sb.WriteString(fmt.Sprintf("%s: %v\n", k, v))
+	// Analysis results
+	if len(frame.AnalysisResults) > 0 {
+		sb.WriteString("\nResultados del Análisis:\n")
+		for key, value := range frame.AnalysisResults {
+			sb.WriteString(fmt.Sprintf("  %s: %v\n", key, value))
 		}
 	}
 }
 
 // renderHexView renders the hex dump view of the frame
 func (m *frameDetailModel) renderHexView(sb *strings.Builder) {
-	rawData := m.frame.RawData
-	if len(rawData) == 0 {
-		sb.WriteString("No raw data available")
-		return
-	}
+	frame := m.frame
 
-	// Calculate visible lines based on scroll position
-	linesPerPage := 16
-	bytesPerLine := 16
-	totalLines := (len(rawData) + bytesPerLine - 1) / bytesPerLine
+	sb.WriteString("Vista Hexadecimal de la Trama\n\n")
 
-	sb.WriteString(fmt.Sprintf("Showing %d of %d bytes (scroll to see more)\n\n", len(rawData), len(rawData)))
-	sb.WriteString("       | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | ASCII\n")
-	sb.WriteString("-------+------------------------------------------------+----------------\n")
+	// Format the hex dump
+	for i := 0; i < len(frame.RawData); i += 16 {
+		// Print offset
+		sb.WriteString(fmt.Sprintf("%08x  ", i))
 
-	// Show hex dump
-	for i := m.scrollPos; i < m.scrollPos+linesPerPage && i < totalLines; i++ {
-		// Address
-		sb.WriteString(fmt.Sprintf(" %04X  | ", i*bytesPerLine))
-
-		// Hex values
-		for j := 0; j < bytesPerLine; j++ {
-			idx := i*bytesPerLine + j
-			if idx < len(rawData) {
-				sb.WriteString(fmt.Sprintf("%02X ", rawData[idx]))
+		// Print hex values
+		for j := 0; j < 16; j++ {
+			if i+j < len(frame.RawData) {
+				sb.WriteString(fmt.Sprintf("%02x ", frame.RawData[i+j]))
 			} else {
 				sb.WriteString("   ")
 			}
+			if j == 7 {
+				sb.WriteString(" ")
+			}
 		}
 
-		sb.WriteString("| ")
-
-		// ASCII representation
-		for j := 0; j < bytesPerLine; j++ {
-			idx := i*bytesPerLine + j
-			if idx < len(rawData) {
-				if rawData[idx] >= 32 && rawData[idx] <= 126 {
-					sb.WriteString(string(rawData[idx]))
+		// Print ASCII representation
+		sb.WriteString(" |")
+		for j := 0; j < 16; j++ {
+			if i+j < len(frame.RawData) {
+				b := frame.RawData[i+j]
+				if b >= 32 && b <= 126 {
+					sb.WriteString(fmt.Sprintf("%c", b))
 				} else {
 					sb.WriteString(".")
 				}
@@ -512,8 +439,7 @@ func (m *frameDetailModel) renderHexView(sb *strings.Builder) {
 				sb.WriteString(" ")
 			}
 		}
-
-		sb.WriteString("\n")
+		sb.WriteString("|\n")
 	}
 }
 
@@ -606,19 +532,19 @@ func (m *savedCapturesModel) loadCapture(filename string) tea.Cmd {
 	}
 }
 
-// View renders the saved captures list
+// View renders the saved captures screen
 func (m *savedCapturesModel) View() string {
 	var sb strings.Builder
 
-	sb.WriteString("💾 Saved Captures\n\n")
+	sb.WriteString("💾 Capturas Guardadas\n\n")
 
 	if m.loading {
-		sb.WriteString("Loading captures...\n")
+		sb.WriteString("Cargando capturas...\n")
 		return sb.String()
 	}
 
 	if len(m.captures) == 0 {
-		sb.WriteString("No saved captures found\n")
+		sb.WriteString("No hay capturas guardadas\n")
 		return sb.String()
 	}
 
@@ -629,25 +555,12 @@ func (m *savedCapturesModel) View() string {
 			cursor = ">"
 		}
 
-		sb.WriteString(fmt.Sprintf("%s %s - %s\n",
-			cursor,
-			capture.Filename,
-			capture.StartTime.Format("2006-01-02 15:04:05"),
-		))
-
-		sb.WriteString(fmt.Sprintf("  Interface: %s, Frames: %d\n",
-			capture.Interface,
-			capture.FrameCount,
-		))
-
-		if capture.Description != "" {
-			sb.WriteString(fmt.Sprintf("  Description: %s\n", capture.Description))
-		}
-
-		sb.WriteString("\n")
+		sb.WriteString(fmt.Sprintf("%s %s\n", cursor, capture.Filename))
+		sb.WriteString(fmt.Sprintf("  Tiempo: %s\n", capture.StartTime.Format("2006-01-02 15:04:05")))
+		sb.WriteString(fmt.Sprintf("  Tramas: %d\n", capture.FrameCount))
 	}
 
-	sb.WriteString("\nUse arrow keys to navigate, Enter to load capture\n")
+	sb.WriteString("\nUse las teclas de flecha para navegar, Enter para cargar\n")
 
 	return sb.String()
 }

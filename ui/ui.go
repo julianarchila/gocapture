@@ -107,13 +107,13 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Handle menu selection
 		if selectedCmd, ok := msg.(menuSelectedMsg); ok {
 			switch selectedCmd.option {
-			case "Start Capture":
+			case "Iniciar Captura":
 				m.state = stateCapturing
 				cmds = append(cmds, m.startCapturing())
-			case "Load Capture":
+			case "Cargar Captura":
 				m.state = stateSavedCaptures
 				cmds = append(cmds, m.savedCaptures.loadSavedCaptures())
-			case "Quit":
+			case "Salir":
 				return m, tea.Quit
 			}
 		}
@@ -129,12 +129,12 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Save the current capture
 				metadata := &storage.SaveMetadata{
 					Interface:   m.captureEngine.GetInterfaceName(),
-					Description: "Captured with GoCapture",
+					Description: "Capturado con GoCapture",
 				}
 				if err := m.storageManager.SaveFrames(m.frames, metadata); err != nil {
 					m.err = err
 				} else {
-					m.err = fmt.Errorf("Capture saved to %s", metadata.Filename)
+					m.err = fmt.Errorf("Captura guardada en %s", metadata.Filename)
 				}
 			case "enter":
 				// Stop capturing and show frame list
@@ -175,12 +175,12 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Save the current capture
 				metadata := &storage.SaveMetadata{
 					Interface:   m.captureEngine.GetInterfaceName(),
-					Description: "Captured with GoCapture",
+					Description: "Capturado con GoCapture",
 				}
 				if err := m.storageManager.SaveFrames(m.frames, metadata); err != nil {
 					m.err = err
 				} else {
-					m.err = fmt.Errorf("Capture saved to %s", metadata.Filename)
+					m.err = fmt.Errorf("Captura guardada en %s", metadata.Filename)
 				}
 			}
 		}
@@ -225,7 +225,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.frameList.setFrames(m.frames)
 			} else {
 				m.state = stateMainMenu
-				m.err = fmt.Errorf("No frames in the selected capture")
+				m.err = fmt.Errorf("No hay tramas en la captura seleccionada")
 			}
 		}
 
@@ -246,19 +246,26 @@ func (m *MainModel) View() string {
 	var sb strings.Builder
 
 	// Show header
-	sb.WriteString("GoCapture - IEEE 802.3/802.11 Frame Analyzer\n")
+	sb.WriteString("GoCapture - Analizador de Tramas IEEE 802.3/802.11\n")
 	sb.WriteString("─────────────────────────────────────────────\n\n")
 
-	// Show appropriate view based on the current state
+	// Show error if any
+	if m.err != nil {
+		sb.WriteString(fmt.Sprintf("Error: %v\n\n", m.err))
+		m.err = nil
+	}
+
+	// Show appropriate view based on state
 	switch m.state {
 	case stateMainMenu:
 		sb.WriteString(m.mainMenu.View())
 	case stateCapturing:
-		sb.WriteString(fmt.Sprintf("📶 Capturing frames on interface %s\n\n", m.captureEngine.GetInterfaceName()))
-		sb.WriteString(fmt.Sprintf("Frames captured: %d\n\n", len(m.frames)))
-		sb.WriteString("Press ESC to stop and return to main menu\n")
-		sb.WriteString("Press ENTER to stop and view frames\n")
-		sb.WriteString("Press S to save the current capture\n")
+		sb.WriteString("Capturando tramas...\n")
+		sb.WriteString(fmt.Sprintf("Interfaz: %s\n", m.captureEngine.GetInterfaceName()))
+		sb.WriteString(fmt.Sprintf("Tramas capturadas: %d\n", len(m.frames)))
+		sb.WriteString("\nPresione Enter para detener y ver las tramas\n")
+		sb.WriteString("Presione 's' para guardar la captura\n")
+		sb.WriteString("Presione Esc para volver al menú principal\n")
 	case stateFrameList:
 		sb.WriteString(m.frameList.View())
 	case stateFrameDetail:
@@ -266,16 +273,6 @@ func (m *MainModel) View() string {
 	case stateSavedCaptures:
 		sb.WriteString(m.savedCaptures.View())
 	}
-
-	// Show error message if any
-	if m.err != nil {
-		sb.WriteString("\n\n")
-		sb.WriteString(fmt.Sprintf("Error: %v\n", m.err))
-	}
-
-	// Show help text
-	sb.WriteString("\n")
-	sb.WriteString("Press q to quit, ESC to go back\n")
 
 	return sb.String()
 }

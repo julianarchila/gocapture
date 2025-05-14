@@ -1,227 +1,227 @@
-# GoCapture - User Documentation
+# GoCapture - Documentación de Usuario
 
-## Overview
+## Descripción General
 
-GoCapture is a comprehensive network frame capture and analysis tool for both IEEE 802.3 (Ethernet) and IEEE 802.11 (WLAN) networks. It provides deep insights into network traffic, security mechanisms, and Quality of Service (QoS) parameters, making it valuable for network administrators, security analysts, and students learning about network protocols.
+GoCapture es una herramienta completa de captura y análisis de tramas de red para redes IEEE 802.3 (Ethernet) e IEEE 802.11 (WLAN). Proporciona información detallada sobre el tráfico de red, mecanismos de seguridad y parámetros de Calidad de Servicio (QoS), siendo valiosa para administradores de red, analistas de seguridad y estudiantes que aprenden sobre protocolos de red.
 
-## Installation
+## Instalación
 
-### Prerequisites
+### Prerrequisitos
 
-- Go 1.18 or later
-- libpcap development package
+- Go 1.18 o posterior
+- Paquete de desarrollo libpcap
   - Debian/Ubuntu: `sudo apt-get install libpcap-dev`
   - CentOS/RHEL: `sudo yum install libpcap-devel`
   - macOS: `brew install libpcap`
 
-### Building from Source
+### Compilación desde el Código Fuente
 
-1. Clone the repository:
+1. Clonar el repositorio:
    ```bash
    git clone https://github.com/USERNAME/gocapture.git
    cd gocapture
    ```
 
-2. Build the project:
+2. Compilar el proyecto:
    ```bash
    go build -o gocapture ./cmd/gocapture
    ```
 
-3. Install to your system (optional):
+3. Instalar en el sistema (opcional):
    ```bash
    go install ./cmd/gocapture
    ```
 
-## Basic Usage
+## Uso Básico
 
-### View Available Network Interfaces
+### Ver Interfaces de Red Disponibles
 
-To view all available network interfaces on your system:
+Para ver todas las interfaces de red disponibles en su sistema:
 
 ```bash
 ./gocapture
 ```
 
-### Start Packet Capture
+### Iniciar Captura de Paquetes
 
-To start capturing packets on a specific interface:
+Para comenzar a capturar paquetes en una interfaz específica:
 
 ```bash
 sudo ./gocapture -interface eth0
 ```
 
-Note: Administrator/root privileges are required for capturing packets on most interfaces.
+Nota: Se requieren privilegios de administrador/root para capturar paquetes en la mayoría de las interfaces.
 
-### Command-Line Options
+### Opciones de Línea de Comandos
 
-- `-interface`: Network interface to capture from (e.g., eth0, wlan0)
-- `-promiscuous`: Enable promiscuous mode (default: true)
-- `-filter`: BPF filter expression (e.g., "port 80" to capture only HTTP traffic)
+- `-interface`: Interfaz de red desde la cual capturar (ej., eth0, wlan0)
+- `-promiscuous`: Habilitar modo promiscuo (predeterminado: true)
+- `-filter`: Expresión de filtro BPF (ej., "port 80" para capturar solo tráfico HTTP)
 
-Example with filter:
+Ejemplo con filtro:
 ```bash
 sudo ./gocapture -interface eth0 -filter "port 53"
 ```
 
-## Application Architecture
+## Arquitectura de la Aplicación
 
-GoCapture follows a modular architecture with clear separation of concerns:
+GoCapture sigue una arquitectura modular con clara separación de responsabilidades:
 
-### Components
+### Componentes
 
-1. **Capture Engine** (`internal/capture`)
-   - Interfaces with network hardware using the libpcap library
-   - Handles frame capture in promiscuous mode
-   - Provides a channel-based API for consuming captured frames
+1. **Motor de Captura** (`internal/capture`)
+   - Interactúa con el hardware de red usando la biblioteca libpcap
+   - Maneja la captura de tramas en modo promiscuo
+   - Proporciona una API basada en canales para consumir tramas capturadas
 
-2. **Parser Module** (`internal/parser`)
-   - Decodes raw frames into structured data
-   - Implements specific parsers for Ethernet and WLAN frames
-   - Extracts header fields, addresses, and protocol-specific information
+2. **Módulo Parser** (`internal/parser`)
+   - Decodifica tramas raw en datos estructurados
+   - Implementa parsers específicos para tramas Ethernet y WLAN
+   - Extrae campos de encabezado, direcciones e información específica del protocolo
 
-3. **Analyzer Engine** (`internal/analyzer`)
-   - Interprets parsed frame data
-   - Provides security analysis for encryption methods
-   - Analyzes QoS parameters and traffic prioritization
-   - Gives context and recommendations based on observed frames
+3. **Motor Analizador** (`internal/analyzer`)
+   - Interpreta datos de tramas parseadas
+   - Proporciona análisis de seguridad para métodos de encriptación
+   - Analiza parámetros QoS y priorización de tráfico
+   - Da contexto y recomendaciones basadas en las tramas observadas
 
-4. **Storage Module** (`internal/storage`)
-   - Serializes captured frames to disk
-   - Loads previously saved captures
-   - Manages capture metadata
+4. **Módulo de Almacenamiento** (`internal/storage`)
+   - Serializa tramas capturadas a disco
+   - Carga capturas guardadas previamente
+   - Gestiona metadatos de captura
 
-5. **User Interface** (`ui/`)
-   - Terminal-based UI built with Bubble Tea
-   - Multiple views: main menu, capture, frame list, frame details
-   - Interactive navigation and frame inspection
+5. **Interfaz de Usuario** (`ui/`)
+   - UI basada en terminal construida con Bubble Tea
+   - Múltiples vistas: menú principal, captura, lista de tramas, detalles de trama
+   - Navegación interactiva e inspección de tramas
 
-### Data Flow
+### Flujo de Datos
 
-1. The Capture Engine captures raw frames from the network interface
-2. Raw frames are sent to the Parser Module for decoding
-3. Parsed frames are passed to the Analyzer Engine for interpretation
-4. The UI displays the analyzed frames and allows for interaction
-5. The Storage Module can save/load captures at any point
+1. El Motor de Captura captura tramas raw desde la interfaz de red
+2. Las tramas raw se envían al Módulo Parser para decodificación
+3. Las tramas parseadas se pasan al Motor Analizador para interpretación
+4. La UI muestra las tramas analizadas y permite la interacción
+5. El Módulo de Almacenamiento puede guardar/cargar capturas en cualquier momento
 
-## Frame Types
+## Tipos de Tramas
 
-### Ethernet Frames (IEEE 802.3)
+### Tramas Ethernet (IEEE 802.3)
 
-Ethernet frames are the foundation of wired networks and include:
+Las tramas Ethernet son la base de las redes cableadas e incluyen:
 
-- MAC header with source and destination addresses
-- EtherType field indicating the payload protocol (e.g., IPv4, IPv6, ARP)
-- Optional VLAN tagging for network segmentation
-- Payload data
-- Frame Check Sequence (FCS) for error detection
+- Encabezado MAC con direcciones de origen y destino
+- Campo EtherType indicando el protocolo de carga útil (ej., IPv4, IPv6, ARP)
+- Etiquetado VLAN opcional para segmentación de red
+- Datos de carga útil
+- Secuencia de Verificación de Trama (FCS) para detección de errores
 
-### WLAN Frames (IEEE 802.11)
+### Tramas WLAN (IEEE 802.11)
 
-WLAN frames are more complex and are categorized into three types:
+Las tramas WLAN son más complejas y se categorizan en tres tipos:
 
-1. **Management Frames**
-   - Establish and maintain communications
-   - Examples: Beacons, Association Requests/Responses, Authentication frames
-   - Used for network discovery and connection management
+1. **Tramas de Gestión**
+   - Establecen y mantienen comunicaciones
+   - Ejemplos: Beacons, Solicitudes/Respuestas de Asociación, Tramas de Autenticación
+   - Usadas para descubrimiento de red y gestión de conexiones
 
-2. **Control Frames**
-   - Assist in the delivery of data frames
-   - Examples: Acknowledgments (ACK), Request to Send (RTS), Clear to Send (CTS)
-   - Help manage access to the shared wireless medium
+2. **Tramas de Control**
+   - Asisten en la entrega de tramas de datos
+   - Ejemplos: Acuses de Recibo (ACK), Solicitud para Enviar (RTS), Listo para Enviar (CTS)
+   - Ayudan a gestionar el acceso al medio inalámbrico compartido
 
-3. **Data Frames**
-   - Carry the actual network data
-   - Can include QoS parameters for traffic prioritization
-   - May be protected by various encryption methods
+3. **Tramas de Datos**
+   - Transportan los datos reales de la red
+   - Pueden incluir parámetros QoS para priorización de tráfico
+   - Pueden estar protegidas por varios métodos de encriptación
 
-## Security Analysis
+## Análisis de Seguridad
 
-GoCapture identifies and analyzes encryption methods used in wireless networks:
+GoCapture identifica y analiza métodos de encriptación usados en redes inalámbricas:
 
 1. **WEP (Wired Equivalent Privacy)**
-   - Legacy encryption with serious security flaws
-   - Uses RC4 cipher with static keys
-   - Vulnerable to statistical attacks
+   - Encriptación heredada con graves fallos de seguridad
+   - Usa cifrado RC4 con claves estáticas
+   - Vulnerable a ataques estadísticos
 
 2. **WPA (Wi-Fi Protected Access)**
-   - Uses TKIP (Temporal Key Integrity Protocol)
-   - Stronger than WEP, but still has vulnerabilities
-   - Designed as a transitional solution
+   - Usa TKIP (Temporal Key Integrity Protocol)
+   - Más fuerte que WEP, pero aún tiene vulnerabilidades
+   - Diseñado como solución transitoria
 
 3. **WPA2**
-   - Uses CCMP based on the AES algorithm
-   - Currently the most widely deployed Wi-Fi security standard
-   - Vulnerable to KRACK attacks (if not patched)
+   - Usa CCMP basado en el algoritmo AES
+   - Actualmente el estándar de seguridad Wi-Fi más ampliamente desplegado
+   - Vulnerable a ataques KRACK (si no está parcheado)
 
 4. **WPA3**
-   - Latest security standard for Wi-Fi
-   - Uses SAE (Simultaneous Authentication of Equals)
-   - Provides forward secrecy and protection against offline dictionary attacks
+   - Último estándar de seguridad para Wi-Fi
+   - Usa SAE (Simultaneous Authentication of Equals)
+   - Proporciona secreto hacia adelante y protección contra ataques de diccionario offline
 
-## QoS Analysis
+## Análisis QoS
 
-For frames with Quality of Service information, GoCapture analyzes:
+Para tramas con información de Calidad de Servicio, GoCapture analiza:
 
-- **Traffic Categories**: Background, Best Effort, Video, Voice
-- **Priority Levels**: 0 (lowest) to 7 (highest)
-- **TXOP Allocation**: Transmission opportunity durations
-- **ACK Policies**: How frames are acknowledged
+- **Categorías de Tráfico**: Fondo, Mejor Esfuerzo, Video, Voz
+- **Niveles de Prioridad**: 0 (más bajo) a 7 (más alto)
+- **Asignación TXOP**: Duraciones de oportunidad de transmisión
+- **Políticas ACK**: Cómo se confirman las tramas
 
-## Troubleshooting
+## Solución de Problemas
 
-### Permission Issues
+### Problemas de Permisos
 
-If you encounter "Operation not permitted" errors:
+Si encuentra errores "Operation not permitted":
 
-1. Ensure you're running with administrator/root privileges:
+1. Asegúrese de ejecutar con privilegios de administrador/root:
    ```bash
    sudo ./gocapture -interface eth0
    ```
 
-2. Verify the interface exists and is up:
+2. Verifique que la interfaz existe y está activa:
    ```bash
    ip link show
    ```
 
-### No Frames Captured
+### No Se Capturan Tramas
 
-If the application runs but doesn't capture any frames:
+Si la aplicación se ejecuta pero no captura tramas:
 
-1. Check if your interface is in monitor mode (for WLAN captures)
-2. Try a different interface
-3. Ensure there is actual network traffic on the interface
-4. Try using the loopback interface (`lo`) and generate some local traffic
+1. Verifique si su interfaz está en modo monitor (para capturas WLAN)
+2. Intente una interfaz diferente
+3. Asegúrese de que hay tráfico real en la interfaz
+4. Intente usar la interfaz loopback (`lo`) y genere algo de tráfico local
 
-### Building Errors
+### Errores de Compilación
 
-If you encounter build errors related to pcap:
+Si encuentra errores de compilación relacionados con pcap:
 
-1. Ensure libpcap development packages are installed
-2. Verify Go modules are properly initialized
-3. Run `go mod tidy` to resolve dependencies
+1. Asegúrese de que los paquetes de desarrollo libpcap están instalados
+2. Verifique que los módulos Go están correctamente inicializados
+3. Ejecute `go mod tidy` para resolver dependencias
 
-## Advanced Usage
+## Uso Avanzado
 
-### Capturing Wireless Frames
+### Capturando Tramas Inalámbricas
 
-To capture raw 802.11 frames, your wireless interface must be in monitor mode:
+Para capturar tramas 802.11 raw, su interfaz inalámbrica debe estar en modo monitor:
 
-1. Put your interface in monitor mode (may vary by OS and driver)
-2. Start GoCapture with the monitor mode interface
+1. Ponga su interfaz en modo monitor (puede variar según el SO y el controlador)
+2. Inicie GoCapture con la interfaz en modo monitor
 
-### Using BPF Filters
+### Usando Filtros BPF
 
-Berkeley Packet Filter (BPF) expressions allow for precise capture filtering:
+Las expresiones Berkeley Packet Filter (BPF) permiten un filtrado preciso de captura:
 
-- `port 80 or port 443`: Capture HTTP and HTTPS traffic
-- `host 192.168.1.1`: Capture traffic to/from a specific host
-- `icmp`: Capture only ICMP packets
-- `not port 22`: Exclude SSH traffic
+- `port 80 or port 443`: Capturar tráfico HTTP y HTTPS
+- `host 192.168.1.1`: Capturar tráfico hacia/desde un host específico
+- `icmp`: Capturar solo paquetes ICMP
+- `not port 22`: Excluir tráfico SSH
 
-## Contributing
+## Contribuir
 
-Contributions to GoCapture are welcome! Please see our contributing guidelines for more information.
+¡Las contribuciones a GoCapture son bienvenidas! Por favor, consulte nuestras guías de contribución para más información.
 
-## License
+## Licencia
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+Este proyecto está licenciado bajo la Licencia MIT - vea el archivo LICENSE para más detalles. 
